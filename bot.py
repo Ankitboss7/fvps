@@ -40,7 +40,7 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-logger = logging.getLogger('UnixNodesBot')
+logger = logging.getLogger('FluidNodeBot')
 
 # Load environment variables
 load_dotenv()
@@ -621,7 +621,7 @@ async def build_custom_image(vps_id, username, root_password, user_password, bas
             f.write(dockerfile_content)
         
         # Build the image
-        image_tag = f"unixnodes/{vps_id.lower()}:latest"
+        image_tag = f"FluidNode/{vps_id.lower()}:latest"
         build_process = await asyncio.create_subprocess_exec(
             "docker", "build", "-t", image_tag, temp_dir,
             stdout=asyncio.subprocess.PIPE,
@@ -646,7 +646,7 @@ async def build_custom_image(vps_id, username, root_password, user_password, bas
             logger.error(f"Error cleaning up temp directory: {e}")
 
 async def setup_container(container_id, status_msg, memory, username, vps_id=None, use_custom_image=False):
-    """Enhanced container setup with UnixNodes customization"""
+    """Enhanced container setup with FluidNode customization"""
     try:
         # Ensure container is running
         if isinstance(status_msg, discord.Interaction):
@@ -711,9 +711,9 @@ async def setup_container(container_id, status_msg, memory, username, vps_id=Non
 
         # Set UnixNodes customization
         if isinstance(status_msg, discord.Interaction):
-            await status_msg.followup.send("🎨 Setting up UnixNodes customization...", ephemeral=True)
+            await status_msg.followup.send("🎨 Setting up FluidNode customization...", ephemeral=True)
         else:
-            await status_msg.edit(content="🎨 Setting up UnixNodes customization...")
+            await status_msg.edit(content="🎨 Setting up FluidNode customization...")
             
         # Create welcome message file
         welcome_cmd = f"echo '{WELCOME_MESSAGE}' > /etc/motd && echo 'echo \"{WELCOME_MESSAGE}\"' >> /home/{username}/.bashrc"
@@ -724,7 +724,7 @@ async def setup_container(container_id, status_msg, memory, username, vps_id=Non
         # Set hostname and watermark
         if not vps_id:
             vps_id = generate_vps_id()
-        hostname_cmd = f"echo 'unixnodes-{vps_id}' > /etc/hostname && hostname unixnodes-{vps_id}"
+        hostname_cmd = f"echo 'FluidNode-{vps_id}' > /etc/hostname && hostname unixnodes-{vps_id}"
         success, output = await run_docker_command(container_id, ["bash", "-c", hostname_cmd])
         if not success:
             raise Exception(f"Failed to set hostname: {output}")
@@ -761,9 +761,9 @@ async def setup_container(container_id, status_msg, memory, username, vps_id=Non
                 logger.warning(f"Security setup command failed: {cmd} - {output}")
 
         if isinstance(status_msg, discord.Interaction):
-            await status_msg.followup.send("✅ UnixNodes VPS setup completed successfully!", ephemeral=True)
+            await status_msg.followup.send("✅ FluidNode VPS setup completed successfully!", ephemeral=True)
         else:
-            await status_msg.edit(content="✅ UnixNodes VPS setup completed successfully!")
+            await status_msg.edit(content="✅ FluidNode VPS setup completed successfully!")
             
         return True, ssh_password, vps_id
     except Exception as e:
@@ -809,7 +809,7 @@ async def on_ready():
 async def show_commands(ctx):
     """Show all available commands"""
     try:
-        embed = discord.Embed(title="🤖 UnixNodes VPS Bot Commands", color=discord.Color.blue())
+        embed = discord.Embed(title="🤖 FluidNode VPS Bot Commands", color=discord.Color.blue())
         
         # User commands
         embed.add_field(name="User Commands", value="""
@@ -967,7 +967,7 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
             await ctx.send(f"❌ {owner.mention} already has the maximum number of VPS instances ({bot.db.get_setting('max_vps_per_user')})", ephemeral=True)
             return
 
-        status_msg = await ctx.send("🚀 Creating UnixNodes VPS instance... This may take a few minutes.")
+        status_msg = await ctx.send("🚀 Creating FluidNode VPS instance... This may take a few minutes.")
 
         memory_bytes = memory * 1024 * 1024 * 1024
         vps_id = generate_vps_id()
@@ -1045,7 +1045,7 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
                 )
                 os_image = DEFAULT_OS_IMAGE
 
-        await status_msg.edit(content="🔧 Container created. Setting up UnixNodes environment...")
+        await status_msg.edit(content="🔧 Container created. Setting up FluidNode environment...")
         await asyncio.sleep(5)
 
         setup_success, ssh_password, _ = await setup_container(
@@ -1095,7 +1095,7 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
         bot.db.add_vps(vps_data)
         
         try:
-            embed = discord.Embed(title="🎉 UnixNodes VPS Creation Successful", color=discord.Color.green())
+            embed = discord.Embed(title="🎉 FluidNode VPS Creation Successful", color=discord.Color.green())
             embed.add_field(name="🆔 VPS ID", value=vps_id, inline=True)
             embed.add_field(name="💾 Memory", value=f"{memory}GB", inline=True)
             embed.add_field(name="⚡ CPU", value=f"{cpu} cores", inline=True)
@@ -1134,7 +1134,7 @@ async def list_vps(ctx):
             await ctx.send("You don't have any VPS instances.", ephemeral=True)
             return
 
-        embed = discord.Embed(title="Your UnixNodes VPS Instances", color=discord.Color.blue())
+        embed = discord.Embed(title="Your FluidNode VPS Instances", color=discord.Color.blue())
         
         for vps in user_vps:
             try:
@@ -1179,7 +1179,7 @@ async def admin_list_vps(ctx):
             await ctx.send("No VPS instances found.", ephemeral=True)
             return
 
-        embed = discord.Embed(title="All UnixNodes VPS Instances", color=discord.Color.blue())
+        embed = discord.Embed(title="All FluidNode VPS Instances", color=discord.Color.blue())
         valid_vps_count = 0
         
         for token, vps in all_vps.items():
@@ -1299,7 +1299,7 @@ async def connect_vps(ctx, token: str):
 
         bot.db.update_vps(token, {"tmate_session": ssh_session_line})
         
-        embed = discord.Embed(title="UnixNodes VPS Connection Details", color=discord.Color.blue())
+        embed = discord.Embed(title="FluidNode VPS Connection Details", color=discord.Color.blue())
         embed.add_field(name="Username", value=vps["username"], inline=True)
         embed.add_field(name="SSH Password", value=f"||{vps.get('password', 'Not set')}||", inline=True)
         embed.add_field(name="Tmate Session", value=f"```{ssh_session_line}```", inline=False)
@@ -1314,7 +1314,7 @@ Or use direct SSH:
 """.format(username=vps["username"]), inline=False)
         
         await ctx.author.send(embed=embed)
-        await ctx.send("✅ Connection details sent to your DMs! Use the Tmate command to connect to your UnixNodes VPS.", ephemeral=True)
+        await ctx.send("✅ Connection details sent to your DMs! Use the Tmate command to connect to your FluidNode VPS.", ephemeral=True)
         
     except discord.Forbidden:
         await ctx.send("❌ I couldn't send you a DM. Please enable DMs from server members.", ephemeral=True)
@@ -1444,7 +1444,7 @@ async def admin_stats(ctx):
         # Get system stats
         stats = bot.system_stats
         
-        embed = discord.Embed(title="UnixNodes System Statistics", color=discord.Color.blue())
+        embed = discord.Embed(title="FluidNode System Statistics", color=discord.Color.blue())
         embed.add_field(name="VPS Instances", value=f"Total: {len(bot.db.get_all_vps())}\nRunning: {len([c for c in containers if c.status == 'running'])}", inline=True)
         embed.add_field(name="Docker Containers", value=f"Total: {len(containers)}\nRunning: {len([c for c in containers if c.status == 'running'])}", inline=True)
         embed.add_field(name="CPU Usage", value=f"{stats['cpu_usage']}%", inline=True)
@@ -1647,7 +1647,7 @@ async def vps_usage(ctx):
         total_disk = sum(vps['disk'] for vps in user_vps)
         total_restarts = sum(vps.get('restart_count', 0) for vps in user_vps)
         
-        embed = discord.Embed(title="Your UnixNodes VPS Usage", color=discord.Color.blue())
+        embed = discord.Embed(title="Your FluidNode VPS Usage", color=discord.Color.blue())
         embed.add_field(name="Total VPS Instances", value=len(user_vps), inline=True)
         embed.add_field(name="Total Memory Allocated", value=f"{total_memory}GB", inline=True)
         embed.add_field(name="Total CPU Cores Allocated", value=total_cpu, inline=True)
@@ -1673,7 +1673,7 @@ async def global_stats(ctx):
         total_disk = sum(vps['disk'] for vps in all_vps.values())
         total_restarts = sum(vps.get('restart_count', 0) for vps in all_vps.values())
         
-        embed = discord.Emembed(title="UnixNodes Global Usage Statistics", color=discord.Color.blue())
+        embed = discord.Emembed(title="FluidNode Global Usage Statistics", color=discord.Color.blue())
         embed.add_field(name="Total VPS Created", value=bot.db.get_stat('total_vps_created'), inline=True)
         embed.add_field(name="Total Restarts", value=bot.db.get_stat('total_restarts'), inline=True)
         embed.add_field(name="Current VPS Instances", value=len(all_vps), inline=True)
@@ -2138,7 +2138,7 @@ class VPSManagementView(ui.View):
         if token:
             bot.db.remove_vps(token)
         
-        embed = discord.Embed(title=f"UnixNodes VPS Management - {self.vps_id}", color=discord.Color.red())
+        embed = discord.Embed(title=f"FluidNode VPS Management - {self.vps_id}", color=discord.Color.red())
         embed.add_field(name="Status", value="🔴 Container Not Found", inline=True)
         embed.add_field(name="Note", value="This VPS instance is no longer available. Please create a new one.", inline=False)
         
@@ -2174,7 +2174,7 @@ class VPSManagementView(ui.View):
             if token:
                 bot.db.update_vps(token, {'status': 'running'})
             
-            embed = discord.Embed(title=f"UnixNodes VPS Management - {self.vps_id}", color=discord.Color.green())
+            embed = discord.Embed(title=f"FluidNode VPS Management - {self.vps_id}", color=discord.Color.green())
             embed.add_field(name="Status", value="🟢 Running", inline=True)
             
             if vps:
@@ -2210,7 +2210,7 @@ class VPSManagementView(ui.View):
             if token:
                 bot.db.update_vps(token, {'status': 'stopped'})
             
-            embed = discord.Emembed(title=f"UnixNodes VPS Management - {self.vps_id}", color=discord.Color.orange())
+            embed = discord.Emembed(title=f"FluidNode VPS Management - {self.vps_id}", color=discord.Color.orange())
             embed.add_field(name="Status", value="🔴 Stopped", inline=True)
             
             if vps:
@@ -2221,7 +2221,7 @@ class VPSManagementView(ui.View):
                 embed.add_field(name="Created", value=vps['created_at'], inline=True)
             
             await interaction.message.edit(embed=embed)
-            await interaction.followup.send("✅ UnixNodes VPS stopped successfully!", ephemeral=True)
+            await interaction.followup.send("✅ FluidNode VPS stopped successfully!", ephemeral=True)
         except Exception as e:
             await interaction.followup.send(f"❌ Error stopping VPS: {str(e)}", ephemeral=True)
 
@@ -2270,7 +2270,7 @@ class VPSManagementView(ui.View):
                         # Send new SSH details to owner
                         try:
                             owner = await bot.fetch_user(int(vps["created_by"]))
-                            embed = discord.Embed(title=f"UnixNodes VPS Restarted - {self.vps_id}", color=discord.Color.blue())
+                            embed = discord.Embed(title=f"FluidNode VPS Restarted - {self.vps_id}", color=discord.Color.blue())
                             embed.add_field(name="New SSH Session", value=f"```{ssh_session_line}```", inline=False)
                             await owner.send(embed=embed)
                         except:
@@ -2278,7 +2278,7 @@ class VPSManagementView(ui.View):
                 except:
                     pass
             
-            embed = discord.Embed(title=f"UnixNodes VPS Management - {self.vps_id}", color=discord.Color.green())
+            embed = discord.Embed(title=f"FluidNode VPS Management - {self.vps_id}", color=discord.Color.green())
             embed.add_field(name="Status", value="🟢 Running", inline=True)
             
             if vps:
@@ -2290,7 +2290,7 @@ class VPSManagementView(ui.View):
                 embed.add_field(name="Restart Count", value=vps.get('restart_count', 0) + 1, inline=True)
             
             await interaction.message.edit(embed=embed, view=VPSManagementView(self.vps_id, container.id))
-            await interaction.followup.send("✅ UnixNodes VPS restarted successfully! New SSH details sent to owner.", ephemeral=True)
+            await interaction.followup.send("✅ FluidNode VPS restarted successfully! New SSH details sent to owner.", ephemeral=True)
         except Exception as e:
             await interaction.followup.send(f"❌ Error restarting VPS: {str(e)}", ephemeral=True)
 
@@ -2352,7 +2352,7 @@ class OSSelectionView(ui.View):
             except Exception as e:
                 logger.error(f"Error removing old container: {e}")
 
-            status_msg = await interaction.followup.send("🔄 Reinstalling UnixNodes VPS... This may take a few minutes.", ephemeral=True)
+            status_msg = await interaction.followup.send("🔄 Reinstalling FluidNode VPS... This may take a few minutes.", ephemeral=True)
             
             memory_bytes = vps['memory'] * 1024 * 1024 * 1024
 
@@ -2438,10 +2438,10 @@ class OSSelectionView(ui.View):
             except Exception as e:
                 logger.error(f"Warning: Failed to start tmate session: {e}")
 
-            await status_msg.edit(content="✅ UnixNodes VPS reinstalled successfully!")
+            await status_msg.edit(content="✅ FluidNode VPS reinstalled successfully!")
             
             try:
-                embed = discord.Embed(title=f"UnixNodes VPS Management - {self.vps_id}", color=discord.Color.green())
+                embed = discord.Embed(title=f"FluidNode VPS Management - {self.vps_id}", color=discord.Color.green())
                 embed.add_field(name="Status", value="🟢 Running", inline=True)
                 embed.add_field(name="Memory", value=f"{vps['memory']}GB", inline=True)
                 embed.add_field(name="CPU", value=f"{vps['cpu']} cores", inline=True)
