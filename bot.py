@@ -50,7 +50,7 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 ADMIN_IDS = {int(id_) for id_ in os.getenv('ADMIN_IDS', '1210291131301101618').split(',') if id_.strip()}
 ADMIN_ROLE_ID = int(os.getenv('ADMIN_ROLE_ID', '1376177459870961694'))
 WATERMARK = "FluidNode VPS Service"
-WELCOME_MESSAGE = "Welcome To UnixNodes! Get Started With Us!"
+WELCOME_MESSAGE = "Welcome To fluidNode! Get Started With Us!"
 MAX_VPS_PER_USER = int(os.getenv('MAX_VPS_PER_USER', '3'))
 DEFAULT_OS_IMAGE = os.getenv('DEFAULT_OS_IMAGE', 'ubuntu:22.04')
 DOCKER_NETWORK = os.getenv('DOCKER_NETWORK', 'bridge')
@@ -100,7 +100,7 @@ RUN systemctl enable ssh && \\
 RUN echo '{welcome_message}' > /etc/motd && \\
     echo 'echo "{welcome_message}"' >> /home/{username}/.bashrc && \\
     echo '{watermark}' > /etc/machine-info && \\
-    echo 'unixnodes-{vps_id}' > /etc/hostname
+    echo 'fluidNode-{vps_id}' > /etc/hostname
 
 # Install additional useful packages
 RUN apt-get update && \\
@@ -1109,7 +1109,7 @@ async def create_vps_command(ctx, memory: int, cpu: int, disk: int, owner: disco
             embed.add_field(name="ℹ️ Note", value="This is a UnixNodes VPS instance. You can install and configure additional packages as needed.", inline=False)
             
             await owner.send(embed=embed)
-            await status_msg.edit(content=f"✅ UnixNodes VPS creation successful! VPS has been created for {owner.mention}. Check your DMs for connection details.")
+            await status_msg.edit(content=f"✅ FluidNode VPS creation successful! VPS has been created for {owner.mention}. Check your DMs for connection details.")
         except discord.Forbidden:
             await status_msg.edit(content=f"❌ I couldn't send a DM to {owner.mention}. Please ask them to enable DMs from server members.")
             
